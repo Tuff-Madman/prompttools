@@ -12,7 +12,7 @@ from prompttools.prompttest.threshold_type import ThresholdType
 from prompttools.mock.mock import mock_hf_completion_fn
 from huggingface_hub.inference_api import InferenceApi
 
-if not (("HUGGINGFACEHUB_API_TOKEN" in os.environ) or ("DEBUG" in os.environ)):
+if "HUGGINGFACEHUB_API_TOKEN" not in os.environ and "DEBUG" not in os.environ:
     print("Error: This example requires you to set either your HUGGINGFACEHUB_API_TOKEN or DEBUG=1")
     exit(1)
 

@@ -13,7 +13,7 @@ from prompttools.utils import similarity
 from prompttools.utils import validate_json
 from prompttools.mock.mock import mock_openai_completion_fn
 
-if not (("OPENAI_API_KEY" in os.environ) or ("DEBUG" in os.environ)):
+if "OPENAI_API_KEY" not in os.environ and "DEBUG" not in os.environ:
     print("Error: This example requires you to set either your OPENAI_API_KEY or DEBUG=1")
     exit(1)
 

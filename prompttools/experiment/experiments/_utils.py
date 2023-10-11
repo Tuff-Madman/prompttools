@@ -15,10 +15,7 @@ def _check_column_uniqueness(column: "pd.core.series.Series") -> bool:
         column (pandas.core.series.Series): Column to check
     """
     first_ele = column[0]
-    for ele in column:
-        if first_ele != ele:
-            return True
-    return False
+    return any(first_ele != ele for ele in column)
 
 
 def _get_dynamic_columns(df: pd.DataFrame) -> pd.DataFrame:

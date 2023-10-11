@@ -167,16 +167,16 @@ class WeaviateExperiment(Experiment):
         for vectorizer, moduleConfig in vectorizers_and_moduleConfigs:
             for vectorIndexConfig in self.vectorIndexConfigs:
                 for query_builder_name, query_builder in self.query_builders.items():
-                    for text_query in self.text_queries:
-                        self.argument_combos.append(
-                            {
-                                "vectorizer": vectorizer,
-                                "moduleConfig": moduleConfig,
-                                "vectorIndexConfig": vectorIndexConfig,
-                                "text_query": text_query,
-                                "query_builder_name": query_builder_name,
-                            }
-                        )
+                    self.argument_combos.extend(
+                        {
+                            "vectorizer": vectorizer,
+                            "moduleConfig": moduleConfig,
+                            "vectorIndexConfig": vectorIndexConfig,
+                            "text_query": text_query,
+                            "query_builder_name": query_builder_name,
+                        }
+                        for text_query in self.text_queries
+                    )
 
     def run(self, runs: int = 1):
         results = []

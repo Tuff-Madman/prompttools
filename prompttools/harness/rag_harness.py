@@ -25,10 +25,7 @@ def _doc_list_to_str(documents: list[str]) -> str:
 
 
 def _generate_doc_prompt(documents: list[str], prompt_or_msg: Union[str, list[dict[str, str]]], is_chat: bool):
-    if not is_chat:
-        prompt = prompt_or_msg
-    else:  # You have a chat message object
-        prompt = prompt_or_msg[-1]["content"]
+    prompt = prompt_or_msg if not is_chat else prompt_or_msg[-1]["content"]
     environment = jinja2.Environment()
     template = environment.from_string(DOC_PROMPT_TEMPLATE)
     doc_str = _doc_list_to_str(documents)
@@ -41,10 +38,9 @@ def _generate_doc_prompt(documents: list[str], prompt_or_msg: Union[str, list[di
     )
     if not is_chat:
         return doc_prompt
-    else:
-        new_msg = copy.deepcopy(prompt_or_msg)
-        new_msg[-1]["content"] = doc_prompt
-        return new_msg
+    new_msg = copy.deepcopy(prompt_or_msg)
+    new_msg[-1]["content"] = doc_prompt
+    return new_msg
 
 
 class RetrievalAugmentedGenerationExperimentationHarness(ExperimentationHarness):
@@ -84,21 +80,19 @@ class RetrievalAugmentedGenerationExperimentationHarness(ExperimentationHarness)
 
     def run(self) -> None:
         self.vector_db_experiment.run()
-        document_lists: list[list[str]] = []
-        # latencies = []  # TODO: Include latency results
-        # Extract documents from the result of
-        for i, row in self.vector_db_experiment.full_df.iterrows():
-            document_lists.append(self.extract_document_fn(row))
-            # latencies.append(row["latencies"])
-
+        document_lists: list[list[str]] = [
+            self.extract_document_fn(row)
+            for i, row in self.vector_db_experiment.full_df.iterrows()
+        ]
         # Put documents into prompt template
         augmented_prompts = []
         is_chat = self.llm_experiment_cls._is_chat()
         input_arg_name = "messages" if is_chat else "prompt"
         for doc in document_lists:
-            for prompt_or_msg in self.llm_arguments[input_arg_name]:
-                augmented_prompts.append(_generate_doc_prompt(doc, prompt_or_msg, is_chat))
-
+            augmented_prompts.extend(
+                _generate_doc_prompt(doc, prompt_or_msg, is_chat)
+                for prompt_or_msg in self.llm_arguments[input_arg_name]
+            )
         # Pass documents into LLM
         self.llm_arguments[input_arg_name]: list[str] = augmented_prompts
         self.experiment = self.llm_experiment_cls(**self.llm_arguments)

@@ -95,8 +95,7 @@ class PineconeExperiment(Experiment):
         r"""
         Pinecone helper function to make request
         """
-        result = index.query(**query_params)
-        return result
+        return index.query(**query_params)
 
     def prepare(self) -> None:
         r"""

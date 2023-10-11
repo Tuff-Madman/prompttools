@@ -35,11 +35,10 @@ def _get_version():
     except Exception:
         pass
 
-    os_build_version = os.getenv("BUILD_VERSION")
-    if os_build_version:
+    if os_build_version := os.getenv("BUILD_VERSION"):
         version = os_build_version
     elif sha != "Unknown":
-        version += "+" + sha[:7]
+        version += f"+{sha[:7]}"
 
     return version, sha
 
@@ -66,7 +65,7 @@ class Clean(distutils.command.clean.clean):
                 path.unlink()
 
         for ext in ["so", "dylib", "pyd"]:
-            remove_extension("**/*." + ext)
+            remove_extension(f"**/*.{ext}")
 
         # Remove build directory
         build_dirs = [
@@ -84,7 +83,7 @@ if __name__ == "__main__":
     # TODO: Exporting the version here breaks `python -m build`
     _export_version(VERSION, SHA)
 
-    print("-- Building version " + VERSION)
+    print(f"-- Building version {VERSION}")
 
     setup(
         # Metadata

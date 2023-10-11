@@ -93,13 +93,7 @@ class ReplicateExperiment(Experiment):
         return replicate.run(model_version, input=kwargs)
 
     def _extract_responses(self, output) -> str:
-        if self.image_experiment:
-            return output[0]  # Output should be a list of URIs
-        else:  # Assume `output` is a generator of text
-            res = ""
-            for item in output:
-                res += item
-            return res
+        return output[0] if self.image_experiment else "".join(output)
 
     @staticmethod
     def _image_tag(url, image_width):

@@ -86,8 +86,7 @@ class SequentialChainExperiment(Experiment):
         Local model helper function to make request.
         """
         client = params["client"]
-        response = client(params["prompt"])
-        return response
+        return client(params["prompt"])
 
     def run(
         self,
@@ -107,9 +106,16 @@ class SequentialChainExperiment(Experiment):
             for call_combo in self.call_argument_combos:
                 llm = model_combo["llm"]
                 llm = llm(temperature=call_combo["temperature"])
-                chain = []
-                for i, prompt_template in enumerate(call_combo["prompt_template"]):
-                    chain.append(LLMChain(llm=llm, prompt=prompt_template, output_key=call_combo["output_key"][i]))
+                chain = [
+                    LLMChain(
+                        llm=llm,
+                        prompt=prompt_template,
+                        output_key=call_combo["output_key"][i],
+                    )
+                    for i, prompt_template in enumerate(
+                        call_combo["prompt_template"]
+                    )
+                ]
                 client = SequentialChain(
                     chains=chain,
                     input_variables=call_combo["input_variables"],
@@ -123,7 +129,7 @@ class SequentialChainExperiment(Experiment):
                     latencies.append(perf_counter() - start)
                     results.append(res)
                     self.argument_combos.append(model_combo | call_combo)
-        if len(results) == 0:
+        if not results:
             logging.error("No results. Something went wrong.")
             raise PromptExperimentException
         self._construct_result_dfs(self.argument_combos, results, latencies, extract_response_equal_full_result=True)
@@ -192,8 +198,7 @@ class RouterChainExperiment(Experiment):
         Local model helper function to make request.
         """
         client = params["client"]
-        response = client.run(params["prompt"])
-        return response
+        return client.run(params["prompt"])
 
     def run(
         self,
@@ -247,7 +252,7 @@ class RouterChainExperiment(Experiment):
                     results.append(res)
                     call_combo["client"] = llm  # RouterOutputParser not equipped for serialization
                     self.argument_combos.append(model_combo | call_combo)
-        if len(results) == 0:
+        if not results:
             logging.error("No results. Something went wrong.")
             raise PromptExperimentException
         self._construct_result_dfs(self.argument_combos, results, latencies, extract_response_equal_full_result=True)

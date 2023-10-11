@@ -103,8 +103,7 @@ class ChromaDBExperiment(Experiment):
         r"""
         ChromaDB helper function to make request
         """
-        results = collection.query(**query_params)
-        return results
+        return collection.query(**query_params)
 
     def prepare(self) -> None:
         r"""

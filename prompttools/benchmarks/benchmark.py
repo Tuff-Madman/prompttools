@@ -59,10 +59,7 @@ class Benchmark:
         Benchmark LLM accuracy on multiple choice
         prompt endings.
         """
-        correct = 0
-        for _, row in dataframe.iterrows():
-            if row[col1] == row[col2]:
-                correct += 1
+        correct = sum(1 for _, row in dataframe.iterrows() if row[col1] == row[col2])
         return correct / len(dataframe)
 
     def multiple_choice_benchmark(
@@ -81,17 +78,18 @@ class Benchmark:
         benchmark_df = self.experiment.full_df[["prompt", "response"]]
         benchmark_df["response_options"] = self.response_options
         benchmark_df = benchmark_df.explode(column="response_options").reset_index()
-        scores = []
-        for _, row in benchmark_df.iterrows():
-            scores.append(self.eval_method(row=row, expected=row["response_options"]))
+        scores = [
+            self.eval_method(row=row, expected=row["response_options"])
+            for _, row in benchmark_df.iterrows()
+        ]
         benchmark_df["scores"] = scores
         benchmark_df["max_value"] = benchmark_df.groupby("prompt")["scores"].transform("max")
         benchmark_df = benchmark_df[benchmark_df["scores"] == benchmark_df["max_value"]]
         benchmark_df = benchmark_df.sort_index()
-        # Colect model choices
-        model_choice = []
-        for i, choice in enumerate(benchmark_df["response_options"].values):
-            model_choice.append(self.response_options[i].index(choice))
+        model_choice = [
+            self.response_options[i].index(choice)
+            for i, choice in enumerate(benchmark_df["response_options"].values)
+        ]
         benchmark_df["model_choice"] = model_choice
         benchmark_df["labels"] = self.correct_response_indices
         return self.multiple_choice_accuracy(benchmark_df, "model_choice", "labels")

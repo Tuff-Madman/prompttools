@@ -50,11 +50,11 @@ def prompttest(
 
 def main():
     logging.getLogger().setLevel(logging.WARNING)
-    print("Running " + str(len(TESTS_TO_RUN)) + " test(s)")
-    failures = int(sum([test() for test in TESTS_TO_RUN]))
+    print(f"Running {len(TESTS_TO_RUN)} test(s)")
+    failures = int(sum(test() for test in TESTS_TO_RUN))
     if failures == 0:
-        print("All " + str(len(TESTS_TO_RUN)) + " test(s) passed!")
+        print(f"All {len(TESTS_TO_RUN)} test(s) passed!")
         exit(0)
     else:
-        print("Tests failed: " + str(failures))
+        print(f"Tests failed: {failures}")
         exit(1)

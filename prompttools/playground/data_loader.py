@@ -105,12 +105,11 @@ def run_multiple(
                 experiment = EXPERIMENTS[model_types[i]]([models[i]], input_kwargs, model_specific_kwargs)
             else:
                 experiment = EXPERIMENTS[model_types[i]]([models[i]], selectors)
+        elif model_types[i] == "Replicate":
+            input_kwargs = {"prompt": prompts}
+            model_specific_kwargs = {models[i]: {}}
+            experiment = EXPERIMENTS[model_types[i]]([models[i]], input_kwargs, model_specific_kwargs)
         else:
-            if model_types[i] == "Replicate":
-                input_kwargs = {"prompt": prompts}
-                model_specific_kwargs = {models[i]: {}}
-                experiment = EXPERIMENTS[model_types[i]]([models[i]], input_kwargs, model_specific_kwargs)
-            else:
-                experiment = EXPERIMENTS[model_types[i]]([models[i]], prompts)
+            experiment = EXPERIMENTS[model_types[i]]([models[i]], prompts)
         dfs.append(experiment.to_pandas_df())
     return dfs

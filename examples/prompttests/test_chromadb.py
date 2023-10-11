@@ -12,7 +12,7 @@ from prompttools.experiment import ChromaDBExperiment
 
 EXPECTED = {"Who was the first president of the USA?": "George Washington"}
 
-if not (("CHROMADB_API_TOKEN" in os.environ) or ("DEBUG" in os.environ)):  # placeholder api naming
+if "CHROMADB_API_TOKEN" not in os.environ and "DEBUG" not in os.environ:  # placeholder api naming
     print("Error: This example requires you to set either your CHROMADB_API_TOKEN or DEBUG=1")
     exit(1)
 

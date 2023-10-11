@@ -156,8 +156,7 @@ class LlamaCppExperiment(Experiment):
         """
         client = params["client"]
         call_params = {k: v for k, v in params.items() if k != "client"}
-        response = client(**call_params)
-        return response
+        return client(**call_params)
 
     def run(
         self,
@@ -183,7 +182,7 @@ class LlamaCppExperiment(Experiment):
                     latencies.append(perf_counter() - start)
                     results.append(res)
                     self.argument_combos.append(model_combo | call_combo)
-        if len(results) == 0:
+        if not results:
             logging.error("No results. Something went wrong.")
             raise PromptExperimentException
         self._construct_result_dfs(self.argument_combos, results, latencies, extract_response_equal_full_result=True)

@@ -69,6 +69,8 @@ class ComparisonWidgetProvider:
         row_len = 2 + len(self.models)
         grid = widgets.GridBox(
             items,
-            layout=widgets.Layout(grid_template_columns="repeat(" + str(row_len) + ", 230px)"),
+            layout=widgets.Layout(
+                grid_template_columns=f"repeat({str(row_len)}, 230px)"
+            ),
         )
         display.display(grid)

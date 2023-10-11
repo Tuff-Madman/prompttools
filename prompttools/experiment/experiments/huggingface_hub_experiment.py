@@ -104,8 +104,7 @@ class HuggingFaceHubExperiment(Experiment):
         """
         client = params["client"]
         model_kwargs = {k: params[k] for k in params if k not in ["client", "prompt"]}
-        response = client(inputs=params["prompt"], params=model_kwargs)
-        return response
+        return client(inputs=params["prompt"], params=model_kwargs)
 
     def run(
         self,
@@ -135,7 +134,7 @@ class HuggingFaceHubExperiment(Experiment):
                     latencies.append(perf_counter() - start)
                     results.append(res)
                     self.argument_combos.append(model_combo | call_combo)
-        if len(results) == 0:
+        if not results:
             logging.error("No results. Something went wrong.")
             raise PromptExperimentException
         self._construct_result_dfs(self.argument_combos, results, latencies, extract_response_equal_full_result=True)

@@ -53,9 +53,7 @@ class QdrantExperiment(Experiment):
 
         if "vectors_config__size" in collection_params:
             warnings.warn(
-                "The parameter 'vectors_config__size' is not allowed in "
-                "QdrantExperiment. The vector size is determined by the embedding "
-                "function. It will be overwritten by {}".format(vector_size)
+                f"The parameter 'vectors_config__size' is not allowed in QdrantExperiment. The vector size is determined by the embedding function. It will be overwritten by {vector_size}"
             )
         # The vector size is a required parameter for Qdrant and has to be overwritten
         self.collection_params["vectors_config__size"] = [vector_size]
@@ -88,8 +86,9 @@ class QdrantExperiment(Experiment):
         return cls(**test_parameters, **frozen_parameters)
 
     def qdrant_completion_fn(self, **kwargs) -> List["qdrant_client.qdrant_client.types.ScoredPoint"]:
-        query_result = self.client.search(self.collection_name, with_vectors=True, with_payload=True, **kwargs)
-        return query_result
+        return self.client.search(
+            self.collection_name, with_vectors=True, with_payload=True, **kwargs
+        )
 
     def prepare(self) -> None:
         from qdrant_client import models
@@ -106,12 +105,15 @@ class QdrantExperiment(Experiment):
         self.query_params["query_vector"] = [self.embedding_fn(query) for query in self.queries]
 
         self.collection_args_combo: list[dict] = []
-        for combo in itertools.product(*self.collection_params.values()):
-            self.collection_args_combo.append(dict(zip(self.collection_params.keys(), combo)))
-
+        self.collection_args_combo.extend(
+            dict(zip(self.collection_params.keys(), combo))
+            for combo in itertools.product(*self.collection_params.values())
+        )
         self.query_argument_combos: list[dict] = []
-        for combo in itertools.product(*self.query_params.values()):
-            self.query_argument_combos.append(dict(zip(self.query_params.keys(), combo)))
+        self.query_argument_combos.extend(
+            dict(zip(self.query_params.keys(), combo))
+            for combo in itertools.product(*self.query_params.values())
+        )
 
     def run(self, runs: int = 1) -> None:
         from qdrant_client import models

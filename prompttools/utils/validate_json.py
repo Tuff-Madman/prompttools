@@ -69,10 +69,7 @@ def validate_keys(text: str, valid_keys: List[str]):
         valid_keys (List[str]): A list of valid keys which may appear in the JSON.
     """
     match = re.search(text, KEY_EXTRACTION_REGEX)
-    for group in match.groups():
-        if group not in valid_keys:
-            return 0.0
-    return 1.0
+    return next((0.0 for group in match.groups() if group not in valid_keys), 1.0)
 
 
 def validate_json_response(row: pandas.core.series.Series, response_column_name: str = "response") -> float:

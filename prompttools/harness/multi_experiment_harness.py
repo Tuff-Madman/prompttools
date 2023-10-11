@@ -44,18 +44,25 @@ class MultiExperimentHarness:
         pass
 
     def _get_argument_combos(self):
-        tmp = [combo for experiment in self.experiments for combo in experiment.argument_combos]
-        return tmp
+        return [
+            combo
+            for experiment in self.experiments
+            for combo in experiment.argument_combos
+        ]
 
     def _get_prompts(self):
-        tmp = [combo for experiment in self.experiments for combo in experiment._get_prompts()]
-        return tmp
+        return [
+            combo
+            for experiment in self.experiments
+            for combo in experiment._get_prompts()
+        ]
 
     def _get_results(self):
-        tmp = [
-            experiment._extract_responses(result) for experiment in self.experiments for result in experiment.results
+        return [
+            experiment._extract_responses(result)
+            for experiment in self.experiments
+            for result in experiment.results
         ]
-        return tmp
 
     def _get_scores(self):
         scores = defaultdict(list)
@@ -65,8 +72,11 @@ class MultiExperimentHarness:
         return scores
 
     def _get_experiment_names(self):
-        tmp = [name for experiment in self.experiments for name in experiment._get_model_names()]
-        return tmp
+        return [
+            name
+            for experiment in self.experiments
+            for name in experiment._get_model_names()
+        ]
 
     def visualize(self, colname: str = None) -> None:
         scores = self._get_scores()

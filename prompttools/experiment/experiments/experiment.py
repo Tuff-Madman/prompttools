@@ -151,8 +151,9 @@ class Experiment:
         if is_average:
             for k, v in prompt_scores.items():
                 prompt_scores[k] = v / prompt_counts[k]
-        sorted_scores = dict(sorted(prompt_scores.items(), key=lambda item: item[1], reverse=True))
-        return sorted_scores
+        return dict(
+            sorted(prompt_scores.items(), key=lambda item: item[1], reverse=True)
+        )
 
     def prepare(self) -> None:
         r"""
@@ -233,9 +234,10 @@ class Experiment:
         if response_extractors is None:
             response_df = pd.DataFrame({"response": [self._extract_responses(result) for result in results]})
         else:
-            res_dict = {}
-            for col_name, extractor in response_extractors.items():
-                res_dict[col_name] = [extractor(result) for result in results]
+            res_dict = {
+                col_name: [extractor(result) for result in results]
+                for col_name, extractor in response_extractors.items()
+            }
             response_df = pd.DataFrame(res_dict)
         # `result_df` contains everything returned by the completion function
         if extract_response_equal_full_result:
@@ -266,10 +268,7 @@ class Experiment:
         if self.full_df is None:
             logging.info("Running first...")
             self.run()
-        if get_all_cols:
-            return self.full_df
-        else:
-            return self.partial_df
+        return self.full_df if get_all_cols else self.partial_df
 
     def visualize(self, get_all_cols: bool = False, pivot: bool = False, pivot_columns: list = []) -> None:
         r"""
@@ -341,7 +340,7 @@ class Experiment:
         """
         self.image_experiment = image_experiment
         if metric_name in self.score_df.columns:
-            logging.warning(metric_name + " is already present, skipping.")
+            logging.warning(f"{metric_name} is already present, skipping.")
             return
         res = []
         table = self.get_table(get_all_cols=True)
@@ -371,14 +370,13 @@ class Experiment:
                 input arguments (including frozen ones), full model response (not just the text response), and scores.
         """
         df = self.get_table(get_all_cols)
-        pivot_df = pd.pivot_table(
+        return pd.pivot_table(
             df,
             values=response_value_name,
             index=[pivot_columns[1]],
             columns=[pivot_columns[0]],
             aggfunc=lambda x: x.iloc[0],
         )
-        return pivot_df
 
     # def gather_feedback(self, pivot_data: Dict[str, object], pivot_columns: List[str]) -> None:
     #     """
@@ -479,11 +477,10 @@ class Experiment:
                 input arguments (including frozen ones), full model response (not just the text response), and scores.
         """
         if self.score_df is None or metric_name not in self.score_df.columns:
-            logging.warning("Can't find " + metric_name + " in scores. Did you run `evaluate`?")
+            logging.warning(f"Can't find {metric_name} in scores. Did you run `evaluate`?")
             return
         table = self.get_table(get_all_cols=get_all_cols)
-        sorted_scores = self._aggregate_metric(table, metric_name, agg_column, is_average)
-        return sorted_scores
+        return self._aggregate_metric(table, metric_name, agg_column, is_average)
 
     @staticmethod
     def _extract_responses(output: Dict[str, object]) -> list[str]:
@@ -617,8 +614,7 @@ class Experiment:
         client.close()
 
     def to_markdown(self):
-        markdown = self.to_pandas_df().to_markdown()
-        return markdown
+        return self.to_pandas_df().to_markdown()
 
     def _get_model_names(self):
         pass

@@ -31,7 +31,7 @@ Answer: {{model_answer}}
 def _generate_auto_eval_prompt(fact: str, model_answer: str):
     environment = jinja2.Environment()
     template = environment.from_string(AUTO_EVAL_PROMPT_TEMPLATE)
-    auto_eval_prompt = template.render(
+    return template.render(
         {
             "HUMAN_PROMPT": anthropic.HUMAN_PROMPT,
             "AI_PROMPT": anthropic.AI_PROMPT,
@@ -39,7 +39,6 @@ def _generate_auto_eval_prompt(fact: str, model_answer: str):
             "model_answer": model_answer,
         }
     )
-    return auto_eval_prompt
 
 
 def compute(fact: str, model_answer: str, model: str = "claude-2") -> float:
